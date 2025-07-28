@@ -82,12 +82,12 @@ export function Controls({
               </Button>
         </div>
         <div className="space-y-2 md:col-span-2">
-          <Label htmlFor="answerKeyInput">Correct Answers (e.g., 1=A, 2=B)</Label>
+          <Label htmlFor="answerKeyInput">Correct Answers (e.g., ABCD or 1=A, 2=B)</Label>
           <Textarea
             id="answerKeyInput"
             value={answerKeyInput}
             onChange={(e) => setAnswerKeyInput(e.target.value)}
-            placeholder="1=A, 2=B, 3=C"
+            placeholder="ABCD, 1234, or 1=A, 2=B, 3=C..."
             rows={2}
           />
         </div>

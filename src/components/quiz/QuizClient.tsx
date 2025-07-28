@@ -97,30 +97,63 @@ export default function QuizClient() {
   
   const processAnswerKey = () => {
     const parsedKey: AnswerKey = {};
-    const pairs = answerKeyInput.split(',').filter(p => p.trim() !== '');
-    
+    const input = answerKeyInput.trim();
+    const currentQuestionIds = questions.map(q => q.id);
+
     try {
-      for (const pair of pairs) {
-        const match = pair.trim().match(/(\d+)\s*=\s*([A-D])/i);
-        if (match) {
-          parsedKey[parseInt(match[1])] = match[2].toUpperCase();
-        } else {
-          throw new Error(`Invalid format for entry: "${pair}"`);
+        // Case 1: "1=A, 2=B" format
+        if (input.includes('=')) {
+            const pairs = input.split(',').filter(p => p.trim() !== '');
+            for (const pair of pairs) {
+                const match = pair.trim().match(/(\d+)\s*=\s*([A-D])/i);
+                if (match) {
+                    parsedKey[parseInt(match[1])] = match[2].toUpperCase();
+                } else {
+                    throw new Error(`Invalid format for entry: "${pair}"`);
+                }
+            }
+        } 
+        // Case 2 & 3: Simplified formats "A,B,C" or "1,2,3" or "ABC" or "123"
+        else {
+            const answers = input.replace(/,/g, '').split('');
+            const optionMap: { [key: string]: string } = {'1': 'A', '2': 'B', '3': 'C', '4': 'D'};
+
+            if (answers.length > currentQuestionIds.length) {
+                throw new Error("You have provided more answers than there are questions.");
+            }
+
+            answers.forEach((ans, index) => {
+                const questionId = currentQuestionIds[index];
+                if (questionId !== undefined) {
+                    const upperAns = ans.toUpperCase();
+                    // Handles "A,B,C"
+                    if (['A', 'B', 'C', 'D'].includes(upperAns)) {
+                        parsedKey[questionId] = upperAns;
+                    } 
+                    // Handles "1,2,3"
+                    else if (optionMap[upperAns]) {
+                        parsedKey[questionId] = optionMap[upperAns];
+                    } else {
+                        throw new Error(`Invalid answer character: "${ans}"`);
+                    }
+                }
+            });
         }
-      }
-      setAnswerKey(parsedKey);
-      toast({
-        title: "Answer Key Processed",
-        description: "Correct answers have been updated.",
-      });
+
+        setAnswerKey(parsedKey);
+        toast({
+            title: "Answer Key Processed",
+            description: "Correct answers have been updated.",
+        });
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Invalid Answer Key Format",
-        description: error.message || "Use format like '1=A, 2=B'.",
-      });
+        toast({
+            variant: "destructive",
+            title: "Invalid Answer Key Format",
+            description: error.message || "Use format like '1=A, 2=B' or just 'ABCD'.",
+        });
     }
   };
+
 
   const calculateScore = async () => {
     setLoadingResults(true);
