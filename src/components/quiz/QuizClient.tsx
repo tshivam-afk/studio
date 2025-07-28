@@ -91,6 +91,10 @@ export default function QuizClient() {
       prev.map((q) => (q.id === questionId ? { ...q, userAnswer: answer } : q))
     );
   };
+
+  const handleCorrectAnswerChange = (questionId: number, answer: string) => {
+    setAnswerKey(prev => ({...prev, [questionId]: answer}));
+  };
   
   const processAnswerKey = () => {
     const parsedKey: AnswerKey = {};
@@ -230,14 +234,11 @@ export default function QuizClient() {
         if (prev <= 1) {
           clearInterval(interval);
           setIsTimerRunning(false);
-          if (!toastShown) {
-            toast({
-              variant: "destructive",
-              title: "Time's up!",
-              description: "The quiz has ended. Please calculate your score.",
-            });
-            toastShown = true;
-          }
+          toast({
+            variant: "destructive",
+            title: "Time's up!",
+            description: "The quiz has ended. Please calculate your score.",
+          });
           return 0;
         }
         if (prev > 1 && prev <= 11 && !toastShown) {
@@ -301,6 +302,7 @@ export default function QuizClient() {
                   questions={questions}
                   answerKey={answerKey}
                   handleUserAnswerChange={handleUserAnswerChange}
+                  handleCorrectAnswerChange={handleCorrectAnswerChange}
                   calculateScore={calculateScore}
                   loadingResults={loadingResults}
                 />
