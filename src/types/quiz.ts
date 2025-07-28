@@ -10,7 +10,6 @@ export type QuizResult = {
   incorrectCount: number;
   unansweredCount: number;
   accuracy: number;
-  recommendations: string[];
   incorrectlyAnswered: { q: number; userAnswer: string; correctAnswer: string }[];
   unattemptedQuestions: { q: number; correctAnswer: string }[];
 };

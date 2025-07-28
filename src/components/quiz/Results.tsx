@@ -8,11 +8,10 @@ import { CheckCircle, XCircle, HelpCircle, Target, BookOpen, Bot, Download } fro
 interface ResultsProps {
   results: QuizResult;
   resetAll: () => void;
-  loading: boolean;
 }
 
-export function Results({ results, resetAll, loading }: ResultsProps) {
-  const { score, totalPossibleScore, correctCount, incorrectCount, unansweredCount, accuracy, recommendations, incorrectlyAnswered, unattemptedQuestions } = results;
+export function Results({ results, resetAll }: ResultsProps) {
+  const { score, totalPossibleScore, correctCount, incorrectCount, unansweredCount, accuracy, incorrectlyAnswered, unattemptedQuestions } = results;
 
   const statCards = [
     {
@@ -124,27 +123,23 @@ export function Results({ results, resetAll, loading }: ResultsProps) {
          </Card>
       )}
 
-      <Card className="shadow-lg animate-in fade-in-50 duration-500 delay-200">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Bot /> Personalized Recommendations</CardTitle>
-          <CardDescription>AI-powered suggestions to help you improve.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="flex items-center justify-center p-8">
-              <p>Generating recommendations...</p>
-            </div>
-          ) : recommendations && recommendations.length > 0 ? (
-            <ul className="list-disc list-inside space-y-2">
-              {recommendations.map((rec, index) => (
-                <li key={index}>{rec}</li>
-              ))}
-            </ul>
-          ) : (
-            <p>No specific recommendations needed. Great job!</p>
-          )}
-        </CardContent>
-      </Card>
+      {unattemptedQuestions.length > 0 && (
+         <Card className="shadow-lg animate-in fade-in-50 duration-500 delay-200">
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2"><HelpCircle/> Review Unattempted Answers</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <ul className="space-y-2">
+                    {unattemptedQuestions.map(item => (
+                        <li key={item.q} className="text-sm">
+                            <strong>Q{item.q}:</strong> The correct answer was <span className="font-bold text-primary">{item.correctAnswer}</span>.
+                        </li>
+                    ))}
+                </ul>
+            </CardContent>
+         </Card>
+      )}
+
     </div>
   );
 }

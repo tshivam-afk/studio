@@ -11,7 +11,6 @@ import { QuestionArea } from "./QuestionArea";
 import { Results } from "./Results";
 import { FloatingTimer } from "./FloatingTimer";
 import { ScrollToTopButton } from "./ScrollToTopButton";
-import { getRecommendationsAction } from "@/app/actions";
 
 const DEFAULT_FROM = 1;
 const DEFAULT_TO = 5;
@@ -158,16 +157,6 @@ export default function QuizClient() {
     const totalAttempted = correctCount + incorrectCount;
     const totalPossibleScore = (toQuestion - fromQuestion + 1);
     
-    const { recommendations, error } = await getRecommendationsAction(questions, answerKey);
-
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "AI Error",
-        description: error,
-      });
-    }
-
     setResults({
       correctCount,
       incorrectCount,
@@ -175,7 +164,6 @@ export default function QuizClient() {
       score: correctCount,
       totalPossibleScore: totalPossibleScore,
       accuracy: totalAttempted > 0 ? Math.round((correctCount / totalAttempted) * 100) : 0,
-      recommendations: recommendations || [],
       incorrectlyAnswered,
       unattemptedQuestions,
     });
@@ -234,10 +222,10 @@ export default function QuizClient() {
         if (prev <= 1) {
           clearInterval(interval);
           setIsTimerRunning(false);
-          toast({
+           toast({
             variant: "destructive",
             title: "Time's up!",
-            description: "The quiz has ended. Please calculate your score.",
+            description: "The timer has finished. Please calculate your score.",
           });
           return 0;
         }
@@ -296,7 +284,7 @@ export default function QuizClient() {
             </div>
             <div className="lg:col-span-2">
               {results ? (
-                 <Results results={results} resetAll={resetAll} loading={loadingResults} />
+                 <Results results={results} resetAll={resetAll} />
               ) : (
                 <QuestionArea
                   questions={questions}
