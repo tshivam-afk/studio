@@ -3,7 +3,7 @@
 import type { QuizResult } from "@/types/quiz";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, HelpCircle, Target, BookOpen, Bot } from "lucide-react";
+import { CheckCircle, XCircle, HelpCircle, Target, BookOpen, Bot, Download } from "lucide-react";
 
 interface ResultsProps {
   results: QuizResult;
@@ -12,7 +12,7 @@ interface ResultsProps {
 }
 
 export function Results({ results, resetAll, loading }: ResultsProps) {
-  const { score, totalPossibleScore, correctCount, incorrectCount, unansweredCount, accuracy, recommendations, incorrectlyAnswered } = results;
+  const { score, totalPossibleScore, correctCount, incorrectCount, unansweredCount, accuracy, recommendations, incorrectlyAnswered, unattemptedQuestions } = results;
 
   const statCards = [
     {
@@ -40,6 +40,40 @@ export function Results({ results, resetAll, loading }: ResultsProps) {
       color: "text-blue-500",
     },
   ];
+  
+  const handleSaveResults = () => {
+    let content = "Quiz Results\n\n";
+
+    if (incorrectlyAnswered.length > 0) {
+      content += "--- Incorrectly Answered Questions ---\n";
+      incorrectlyAnswered.forEach(item => {
+        content += `Question ${item.q}: Your answer was ${item.userAnswer}, the correct answer was ${item.correctAnswer}\n`;
+      });
+      content += "\n";
+    }
+
+    if (unattemptedQuestions.length > 0) {
+      content += "--- Unattempted Questions ---\n";
+      unattemptedQuestions.forEach(item => {
+        content += `Question ${item.q}: The correct answer was ${item.correctAnswer}\n`;
+      });
+      content += "\n";
+    }
+
+    if (incorrectlyAnswered.length === 0 && unattemptedQuestions.length === 0) {
+      content += "Great job! No incorrect or unattempted questions.\n";
+    }
+    
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'quiz-results.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="space-y-6">
@@ -63,11 +97,14 @@ export function Results({ results, resetAll, loading }: ResultsProps) {
             ))}
           </div>
         </CardContent>
-        <CardFooter>
-          <Button onClick={resetAll} className="w-full">
-            Start New Test
-          </Button>
-        </CardFooter>
+        <CardFooter className="flex flex-col sm:flex-row gap-2">
+            <Button onClick={resetAll} className="w-full">
+              Start New Test
+            </Button>
+            <Button onClick={handleSaveResults} variant="secondary" className="w-full">
+              <Download /> Save Results
+            </Button>
+          </CardFooter>
       </Card>
       
       {incorrectlyAnswered.length > 0 && (

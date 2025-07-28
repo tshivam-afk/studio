@@ -124,6 +124,7 @@ export default function QuizClient() {
     let correctCount = 0;
     let incorrectCount = 0;
     const incorrectlyAnswered: QuizResult["incorrectlyAnswered"] = [];
+    const unattemptedQuestions: QuizResult["unattemptedQuestions"] = [];
 
     questions.forEach((q) => {
       const correctAnswer = answerKey[q.id];
@@ -139,6 +140,13 @@ export default function QuizClient() {
               correctAnswer: correctAnswer,
             });
           }
+        }
+      } else {
+        if (correctAnswer) {
+          unattemptedQuestions.push({
+            q: q.id,
+            correctAnswer: correctAnswer,
+          });
         }
       }
     });
@@ -165,6 +173,7 @@ export default function QuizClient() {
       accuracy: totalAttempted > 0 ? Math.round((correctCount / totalAttempted) * 100) : 0,
       recommendations: recommendations || [],
       incorrectlyAnswered,
+      unattemptedQuestions,
     });
     
     setIsTimerRunning(false);
@@ -215,24 +224,29 @@ export default function QuizClient() {
   useEffect(() => {
     if (!isTimerRunning || isPaused) return;
 
+    let toastShown = false;
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
           setIsTimerRunning(false);
-          toast({
-            variant: "destructive",
-            title: "Time's up!",
-            description: "The quiz has ended. Please calculate your score.",
-          });
+          if (!toastShown) {
+            toast({
+              variant: "destructive",
+              title: "Time's up!",
+              description: "The quiz has ended. Please calculate your score.",
+            });
+            toastShown = true;
+          }
           return 0;
         }
-        if (prev === 11) {
-            toast({
-                title: "Warning",
-                description: "10 seconds remaining!",
-                variant: 'destructive'
-            });
+        if (prev > 1 && prev <= 11 && !toastShown) {
+             toast({
+                 title: "Warning",
+                 description: "10 seconds remaining!",
+                 variant: 'destructive'
+             });
+             toastShown = true;
         }
         return prev - 1;
       });
