@@ -69,15 +69,20 @@ export default function QuizClient() {
     setQuestions(newQuestions);
     setResults(null);
     setQuizStarted(true);
-    toast({
-      title: "Questions Generated",
-      description: `Ready for questions ${fromQuestion} to ${toQuestion}.`,
-    });
   }, [fromQuestion, toQuestion, toast]);
+
+  useEffect(() => {
+    if (quizStarted) {
+      toast({
+        title: "Questions Generated",
+        description: `Ready for questions ${fromQuestion} to ${toQuestion}.`,
+      });
+    }
+  }, [quizStarted, fromQuestion, toQuestion, toast]);
   
   useEffect(() => {
     generateQuestions();
-  }, [generateQuestions]);
+  }, []);
 
 
   const handleUserAnswerChange = (questionId: number, answer: string | null) => {
@@ -218,9 +223,8 @@ export default function QuizClient() {
           toast({
             variant: "destructive",
             title: "Time's up!",
-            description: "The quiz has ended. Check your results.",
+            description: "The quiz has ended. Please calculate your score.",
           });
-          calculateScore();
           return 0;
         }
         if (prev === 11) {
@@ -235,7 +239,7 @@ export default function QuizClient() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isTimerRunning, isPaused]);
+  }, [isTimerRunning, isPaused, toast]);
 
 
   return (
